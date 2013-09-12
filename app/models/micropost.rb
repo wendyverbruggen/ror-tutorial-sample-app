@@ -1,6 +1,6 @@
 class Micropost < ActiveRecord::Base
-  belongs_to :user
-  belongs_to :in_reply_to, class_name: "User"
+  belongs_to :user, class_name: "User"
+  belongs_to :in_reply_to, foreign_key: "in_reply_to", class_name: "User"
 
   default_scope -> { order('created_at DESC') }
 
@@ -13,7 +13,7 @@ class Micropost < ActiveRecord::Base
 
   def self.from_users_followed_by(user)
     followed_user_ids = "SELECT followed_id FROM relationships WHERE follower_id = :user_id"
-    where("user_id IN (#{followed_user_ids}) OR user_id = :user_id", user_id: user)
+    where("(user_id IN (#{followed_user_ids}) AND (in_reply_to IS NULL OR in_reply_to = :user_id)) OR user_id = :user_id OR in_reply_to = :user_id", user_id: user)
   end
 
   private
@@ -24,9 +24,9 @@ class Micropost < ActiveRecord::Base
         # make this is a valid username (format: @123-the-users-name)
         username_components = first_word.slice(1..-1).split("-", 2)
          
-        user = User.find(username_components[0].to_i)
-        if user && user.name.downcase.gsub(/[-]/, ' ') == username_components[1].downcase.gsub(/[-]/, ' ')
-          self.in_reply_to = user
+        reply_to_user = User.find(username_components[0].to_i)
+        if reply_to_user && reply_to_user.name.downcase.gsub(/[-]/, ' ') == username_components[1].downcase.gsub(/[-]/, ' ')
+          self.in_reply_to = reply_to_user
         end
       end
     end
