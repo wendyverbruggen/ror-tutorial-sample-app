@@ -45,6 +45,14 @@ class User < ActiveRecord::Base
     Digest::SHA1.hexdigest(token.to_s)
   end
 
+  def User.list_users(search)
+    if search
+      where("UPPER(name) LIKE :search OR UPPER(email) LIKE :search", search: "%#{search}%".upcase)
+    else
+      User.all
+    end
+  end
+
   private
 
     def create_remember_token

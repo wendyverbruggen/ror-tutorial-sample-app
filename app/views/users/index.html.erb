@@ -1,5 +1,15 @@
-<% provide(:title, "All users") %>
-<h1>All users</h1>
+<% if params[:search].nil?  %>
+  <% provide(:title, "All users") %>
+  <h1>All users</h1>
+<% else %>
+  <% provide(:title, "Search results") %>
+  <h1>Search results</h1>
+<% end %>
+
+<%= form_tag users_path, method: 'get' do %>
+  <%= text_field_tag :search, params[:search], class: "search-box" %>
+  <%= submit_tag "Search", name: nil, class: "btn btn-large btn-primary" %>
+<% end %>
 
 <%= will_paginate %>
 
