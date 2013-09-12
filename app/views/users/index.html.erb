@@ -6,10 +6,7 @@
   <h1>Search results</h1>
 <% end %>
 
-<%= form_tag users_path, method: 'get' do %>
-  <%= text_field_tag :search, params[:search], class: "search-box" %>
-  <%= submit_tag "Search", name: nil, class: "btn btn-large btn-primary" %>
-<% end %>
+<%= render 'shared/search_form' %>
 
 <%= will_paginate %>
 

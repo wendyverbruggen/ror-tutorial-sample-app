@@ -21,8 +21,9 @@ class User < ActiveRecord::Base
   
   has_secure_password
 
-  def feed
-    Micropost.from_users_followed_by(self)
+  def feed(search)
+    @all_posts = Micropost.from_users_followed_by(self)
+    Micropost.search(search, @all_posts)
   end
 
   def following?(other_user)

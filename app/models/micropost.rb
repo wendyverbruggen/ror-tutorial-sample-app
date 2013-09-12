@@ -11,9 +11,22 @@ class Micropost < ActiveRecord::Base
   # and if so we want to fill in the in_reply_to field with the id of the user replied to
   before_save :check_reply_to
 
-  def self.from_users_followed_by(user)
+  def Micropost.from_users_followed_by(user)
     followed_user_ids = "SELECT followed_id FROM relationships WHERE follower_id = :user_id"
     where("(user_id IN (#{followed_user_ids}) AND (in_reply_to IS NULL OR in_reply_to = :user_id)) OR user_id = :user_id OR in_reply_to = :user_id", user_id: user)
+  end
+
+  def Micropost.search(search, subset=false)
+    if search
+      if !subset # could be more efficient.. getting it to work first :) 
+        where("UPPER(content) LIKE :search", search: "%#{search}%".upcase)   
+      else
+        where("UPPER(content) LIKE :search AND id IN (:subset)", search: "%#{search}%".upcase, subset: subset)
+      end
+    else
+      subset unless !subset
+      Micropost.all
+    end
   end
 
   private
